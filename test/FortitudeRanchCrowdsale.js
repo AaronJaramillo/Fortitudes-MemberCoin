@@ -96,6 +96,32 @@ contract('FRT:Checks Contributions', function(accounts) {
 		(await this.token.totalSupply()).should.be.bignumber.equal(0);
 
 	});
+	it('Should Manually issue tokens', async function() {
+		await increaseTimeTo(this.startTime + duration.days(1));
+		await this.crowdsale.offChainMint(investor, 150000000000000000000000, {from: wallet}).should.be.fulfilled;
+		(await this.token.balanceOf(investor)).should.be.bignumber.equal(150000000000000000000000);
+		(await this.token.totalSupply()).should.be.bignumber.equal(150000000000000000000000);
+
+	});
+	it('Should Fail to Manually issue tokens over the cap', async function() {
+		await increaseTimeTo(this.startTime + duration.days(1));
+		await this.crowdsale.offChainMint(investor, 170000000000000000000000, {from: wallet}).should.be.rejectedWith(EVMThrow);
+		(await this.token.balanceOf(investor)).should.be.bignumber.equal(0);
+		(await this.token.totalSupply()).should.be.bignumber.equal(0);
+		
+	});
+	it('should finalize crowdsale at cap', async function() {
+		await increaseTimeTo(this.startTime);
+		await this.crowdsale.offChainMint(investor, 150000000000000000000000,{from: wallet}).should.be.fulfilled;
+
+		const amountMinted = new BigNumber(await this.token.totalSupply());
+		const expectedTokenAmount = amountMinted.mul(0.2);
+
+		await increaseTimeTo(this.afterEndTime);
+		await this.crowdsale.finalize({from: wallet}).should.be.fulfilled;
+		(await this.token.balanceOf(wallet)).should.be.bignumber.equal(expectedTokenAmount);
+		(await this.token.totalSupply()).should.be.bignumber.equal(amountMinted.add(expectedTokenAmount));
+	});
 	//============NEED TO GIVE TEST ACCOUNTS MORE ETHER IN ORDER TO TEST THIS!!=========
 	// it('should reject payment over the cap', async function () {
 	// 	await increaseTimeTo(this.startTime + duration.days(1));

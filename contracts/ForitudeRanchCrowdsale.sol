@@ -8,7 +8,7 @@ contract FortitudeRanchCrowdsale is FinalizableCrowdsale, CappedCrowdsale {
 
 	function FortitudeRanchCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet)
 		FinalizableCrowdsale()
-		CappedCrowdsale(1500000000000000000000)
+		CappedCrowdsale(150000000000000000000000)
 		Crowdsale(_startTime, _endTime, _rate, _wallet)
 	{
 	}
@@ -33,6 +33,17 @@ contract FortitudeRanchCrowdsale is FinalizableCrowdsale, CappedCrowdsale {
 	    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
 
 	    forwardFunds();
+	}
+	function offChainMint(address beneficiary, uint256 tokenAmount)
+	onlyOwner
+	{
+	    require(beneficiary != 0x0);
+	    bool withinCap = token.totalSupply().add(tokenAmount) <= cap;
+	    require(withinCap);
+    	token.mint(beneficiary, tokenAmount);
+    	TokenPurchase(msg.sender, beneficiary, 0, tokenAmount);
+
+
 	}
 	function validPurchase() internal constant returns (bool) {
 		require(msg.value >= 100000000000000000);

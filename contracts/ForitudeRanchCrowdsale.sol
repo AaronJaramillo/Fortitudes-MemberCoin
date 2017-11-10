@@ -22,9 +22,9 @@ contract FortitudeRanchCrowdsale is FinalizableCrowdsale, CappedCrowdsale {
 	    if(now < (startTime + 1 days)){
 	    	uint256 discountRate = rate.mul(12000000);
 	    	discountRate = discountRate.div(10000);
-	    	uint256 tokens = weiAmount.mul(discountRate).div(1000);
+	    	uint256 tokens = weiAmount.mul(discountRate).div(1000 ether);
 	    } else { 
-	    	 tokens = weiAmount.mul(rate);
+	    	 tokens = (weiAmount.mul(rate)).div(1 ether);
 		}
 	    // update state
 	    weiRaised = weiRaised.add(weiAmount);
@@ -50,9 +50,9 @@ contract FortitudeRanchCrowdsale is FinalizableCrowdsale, CappedCrowdsale {
 	    if(now < (startTime + 1 days)){
 	    	uint256 discountRate = rate.mul(12000000);
 	    	discountRate = discountRate.div(10000);
-	    	uint256 tokens = (msg.value).mul(discountRate).div(1000);
+	    	uint256 tokens = (msg.value).mul(discountRate).div(1000 ether);
 	    } else { 
-	    	 tokens = (msg.value).mul(rate);
+	    	 tokens = (msg.value.mul(rate)).div(1 ether);
 		}
 		bool withinCap = token.totalSupply().add(tokens) <= cap;
 		return super.validPurchase() && withinCap;

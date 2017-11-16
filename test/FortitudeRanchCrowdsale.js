@@ -4,7 +4,7 @@ import {advanceBlock} from './helpers/advanceToBlock'
 import {increaseTimeTo, duration} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
 
-const fortitude = artifacts.require("fortitude.sol");
+const fortitude = artifacts.require("foritude.sol");
 const FortitudeRanchCrowdsale = artifacts.require("FortitudeRanchCrowdsale.sol");
 
 const BigNumber = web3.BigNumber;
@@ -14,7 +14,7 @@ const should = require('chai')
   .should();
 
 contract('FRT:Checks Contributions', function(accounts) {
-	const rate = new BigNumber(1);
+	const rate = new BigNumber(3.5);
 	const  wallet = accounts[1];
 	const investor = accounts[0]
 	beforeEach(async function () {
@@ -22,7 +22,7 @@ contract('FRT:Checks Contributions', function(accounts) {
 		this.endTime = this.startTime + duration.weeks(1);
 		this.afterEndTime = this.endTime + duration.seconds(10)
 
-		this.crowdsale = await FortitudeRanchCrowdsale.new(this.startTime, this.endTime, rate, wallet, {from: wallet});
+		this.crowdsale = await FortitudeRanchCrowdsale.new(this.startTime, this.endTime, ether(rate), wallet, {from: wallet});
 		this.token = fortitude.at(await this.crowdsale.token());
 	});
 
@@ -31,7 +31,7 @@ contract('FRT:Checks Contributions', function(accounts) {
 		this.token.should.exist;
 		(await this.crowdsale.startTime()).should.be.bignumber.equal(this.startTime);
 		(await this.crowdsale.endTime()).should.be.bignumber.equal(this.endTime);
-		(await this.crowdsale.rate()).should.be.bignumber.equal(rate);
+		(await this.crowdsale.rate()).should.be.bignumber.equal(ether(rate));
 		(await this.crowdsale.wallet()).should.be.equal(wallet);
 
 
@@ -56,7 +56,7 @@ contract('FRT:Checks Contributions', function(accounts) {
 		const expectedTokenAmount = rate.mul(investmentAmount);
 
 		await increaseTimeTo(this.startTime + duration.days(1));
-		await this.crowdsale.buyTokens(investor, {value: investmentAmount, from: investor}).should.be.fulfilled;
+		await this.crowdsale.send(investmentAmount, {from: investor}).should.be.fulfilled;
 
 		(await this.token.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
 		(await this.token.totalSupply()).should.be.bignumber.equal(expectedTokenAmount);
@@ -85,13 +85,14 @@ contract('FRT:Checks Contributions', function(accounts) {
 		await increaseTimeTo(this.afterEndTime);
 		await this.crowdsale.finalize({from: wallet}).should.be.fulfilled;
 		(await this.token.balanceOf(wallet)).should.be.bignumber.equal(expectedTokenAmount);
+		await this.crowdsale.buyTokens(investor, {value: ether(1), from: investor}).should.be.rejectedWith(EVMThrow);
 
 	});
 	it('Should burn tokens', async function() {
 		await increaseTimeTo(this.startTime + duration.days(1));
 
 		await this.crowdsale.buyTokens(investor, {value: ether(1), from: investor}).should.be.fulfilled;
-		await this.token.burn(ether(1), {from: investor}).should.be.fulfilled;
+		await this.token.burn(ether(rate), {from: investor}).should.be.fulfilled;
 		(await this.token.balanceOf(investor)).should.be.bignumber.equal(0);
 		(await this.token.totalSupply()).should.be.bignumber.equal(0);
 

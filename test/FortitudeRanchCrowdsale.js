@@ -4,7 +4,7 @@ import {advanceBlock} from './helpers/advanceToBlock'
 import {increaseTimeTo, duration} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
 
-const fortitude = artifacts.require("foritude.sol");
+const fortitude = artifacts.require("fortitude.sol");
 const FortitudeRanchCrowdsale = artifacts.require("FortitudeRanchCrowdsale.sol");
 
 const BigNumber = web3.BigNumber;

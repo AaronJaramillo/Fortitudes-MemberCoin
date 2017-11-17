@@ -21,9 +21,9 @@ contract('FRT:Checks Contributions', function(accounts) {
 		this.startTime = latestTime() + duration.weeks(1);
 		this.endTime = this.startTime + duration.weeks(1);
 		this.afterEndTime = this.endTime + duration.seconds(10)
-
-		this.crowdsale = await FortitudeRanchCrowdsale.new(this.startTime, this.endTime, ether(rate), wallet, {from: wallet});
-		this.token = fortitude.at(await this.crowdsale.token());
+		this.token = await fortitude.new({from: wallet});
+		this.crowdsale = await FortitudeRanchCrowdsale.new(this.startTime, this.endTime, ether(rate), wallet, this.token.address, {from: wallet});
+		this.token.transferOwnership(this.crowdsale.address, {from: wallet});
 	});
 
 	it('should create contracts correctly', async function() {

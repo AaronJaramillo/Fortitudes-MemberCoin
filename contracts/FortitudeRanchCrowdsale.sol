@@ -73,8 +73,8 @@ contract FortitudeRanchCrowdsale is FinalizableCrowdsale, CappedCrowdsale {
 
 
 	}
-	// function createTokenContract() internal returns (MintableToken) {
-	// 	return new Fortitude();
-	// }
+	function createTokenContract() internal returns (MintableToken) {
+		return new Fortitude();
+	}
 
 }

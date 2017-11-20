@@ -8,9 +8,10 @@ module.exports = function(deployer, accounts) {
 	const  wallet = '0x77388542743175D705Cb70392F8c41C35CaE66c7';
 	return deployer.deploy(fortitude).then(function() {
 		return deployer.deploy(FortitudeRanchCrowdsale, startTime, endTime, rate, wallet, fortitude.address).then(function() {
-			fortitude.transferOwnership(FortitudeRanchCrowdsale.address);
+			return fortitude.deployed();
+		}).then(function(instance) {
+			instance.transferOwnership(FortitudeRanchCrowdsale.address);
 		});
 	});
 
 };
-
